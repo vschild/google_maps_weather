@@ -1,8 +1,9 @@
 # Google Maps Weather Integration for Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
-[![GitHub release](https://img.shields.io/github/release/yourusername/google-maps-weather.svg)](https://github.com/yourusername/google-maps-weather/releases)
-[![License](https://img.shields.io/github/license/yourusername/google-maps-weather.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/vschild/google_maps_weather/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1.0%2B-blue.svg)](https://www.home-assistant.io/)
 
 A custom Home Assistant integration that provides real-time, hyperlocal weather data using the Google Maps Weather API.
 
@@ -53,7 +54,7 @@ A custom Home Assistant integration that provides real-time, hyperlocal weather 
 
 #### Option 2: Manual Installation
 
-1. Download the [latest release](https://github.com/yourusername/google-maps-weather/releases)
+1. Download the [latest release](https://github.com/vschild/google_maps_weather/releases)
 2. Extract the `google_maps_weather` folder
 3. Copy to `/config/custom_components/google_maps_weather/`
 4. Restart Home Assistant
@@ -261,8 +262,8 @@ More examples in [configuration_example.yaml](configuration_example.yaml)
 
 - [Google Weather API Documentation](https://developers.google.com/maps/documentation/weather)
 - [Home Assistant](https://www.home-assistant.io/)
-- [Issues](https://github.com/yourusername/google-maps-weather/issues)
-- [Releases](https://github.com/yourusername/google-maps-weather/releases)
+- [Issues](https://github.com/vschild/google_maps_weather/issues)
+- [Releases](https://github.com/vschild/google_maps_weather/releases)
 
 ## 📜 License
 
@@ -284,7 +285,7 @@ If you find this integration useful, please consider:
 
 ## 📞 Support & Community
 
-- [Report an Issue](https://github.com/yourusername/google-maps-weather/issues)
+- [Report an Issue](https://github.com/vschild/google_maps_weather/issues)
 - [Home Assistant Community Forum](https://community.home-assistant.io/)
 
 ---
