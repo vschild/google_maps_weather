@@ -3,6 +3,6 @@
   "content_in_root": true,
   "homeassistant": "2024.1.0",
   "render_readme": true,
-  "logo": "https://raw.githubusercontent.com/vschild/google_maps_weather/main/icon.png"
+  "logo": "https://raw.githubusercontent.com/vschild/google_maps_weather/refs/heads/main/main/logo.png"
 }
 
