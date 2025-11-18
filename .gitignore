@@ -142,3 +142,11 @@ secrets.yaml
 # Custom
 *.zip
 .backup/
+
+#archivos
+CONTROL_LIMITES.md
+CHANGELOG.md
+DEBUG_v1.1.3.md
+FIX_v1.1.1.md
+FIX_v1.1.2_DEFINITIVO.md
+FIX_v1.1.4_DEFINITIVO.md
