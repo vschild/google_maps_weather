@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from homeassistant.components.weather import (
@@ -196,7 +196,10 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
             _LOGGER.warning("forecastDays is empty")
             return None
         
-        _LOGGER.info(f"Processing {len(forecast_data)} days of forecast")
+        # Obtener la fecha actual (solo fecha, sin hora) en UTC
+        today = datetime.now(timezone.utc).date()
+        
+        _LOGGER.info(f"Processing {len(forecast_data)} days of forecast (today: {today})")
         
         # Log de la estructura del primer día para debug
         if forecast_data and _LOGGER.isEnabledFor(logging.DEBUG):
@@ -289,6 +292,16 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
                 else:
                     datetime_str = start_time
                 
+                # Filtrar: solo incluir fechas de hoy en adelante
+                try:
+                    forecast_date = datetime.fromisoformat(datetime_str).date()
+                    if forecast_date < today:
+                        _LOGGER.debug(f"Day {idx}: Skipping past date {datetime_str}")
+                        continue
+                except (ValueError, AttributeError) as err:
+                    _LOGGER.warning(f"Day {idx}: Invalid date format {datetime_str}: {err}")
+                    continue
+                
                 # Crear entrada de forecast
                 # IMPORTANTE: Usar native_temperature (no temperature) para HA 2024.x
                 forecast_entry = Forecast(
@@ -331,7 +344,10 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
             _LOGGER.warning("forecastHours is empty")
             return None
         
-        _LOGGER.info(f"Processing {len(hourly_data)} hours of forecast")
+        # Obtener la hora actual en UTC
+        now_utc = datetime.now(timezone.utc)
+        
+        _LOGGER.info(f"Processing {len(hourly_data)} hours of forecast (now: {now_utc})")
         
         for idx, hour in enumerate(hourly_data):
             try:
@@ -365,6 +381,21 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
                 
                 if not start_time:
                     _LOGGER.warning(f"Hour {idx}: No start time found, skipping")
+                    continue
+                
+                # Filtrar: solo incluir horas futuras
+                try:
+                    # Parsear la fecha/hora ISO con timezone
+                    forecast_time = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                    # Asegurar que tenga timezone
+                    if forecast_time.tzinfo is None:
+                        forecast_time = forecast_time.replace(tzinfo=timezone.utc)
+                    
+                    if forecast_time < now_utc:
+                        _LOGGER.debug(f"Hour {idx}: Skipping past hour {start_time}")
+                        continue
+                except (ValueError, AttributeError) as err:
+                    _LOGGER.warning(f"Hour {idx}: Invalid datetime format {start_time}: {err}")
                     continue
                 
                 # Crear entrada de forecast
