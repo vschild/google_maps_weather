@@ -1,7 +1,7 @@
 # Google Maps Weather Integration for Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
-[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/vschild/google_maps_weather/releases)
+[![Version](https://img.shields.io/badge/version-1.2.3-blue.svg)](https://github.com/vschild/google_maps_weather/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1.0%2B-blue.svg)](https://www.home-assistant.io/)
 
@@ -290,7 +290,7 @@ If you find this integration useful, please consider:
 
 ---
 
-## 🆕 What's New in v1.2.0
+## 🆕 What's New in v1.2.x
 
 ### Hourly Forecast Support
 - ⏰ **Hourly forecasts** now available alongside daily forecasts
@@ -317,5 +317,5 @@ If you find this integration useful, please consider:
 
 **Note**: This integration is not officially affiliated with or endorsed by Google or Home Assistant.
 
-**Version**: 1.2.0  
+**Version**: 1.2.3  
 **Last Updated**: November 2025
