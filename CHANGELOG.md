@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] - 2025-11-18
+
+### 🔧 Fixed
+
+- Fixed HACS repository structure compliance by setting `content_in_root: true` in `hacs.json`
+- This allows HACS to correctly locate integration files in the repository root
+
+---
+
 ## [1.2.0] - 2025-11-18
 
 ### 🎉 Added
@@ -239,5 +248,5 @@ Complete guide on API limits with examples and alerts.
 
 ---
 
-**Current Version**: 1.2.0  
+**Current Version**: 1.2.1  
 **Last Updated**: November 18, 2025
