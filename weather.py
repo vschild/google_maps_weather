@@ -19,6 +19,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import CONDITION_MAP, DOMAIN
 
@@ -196,8 +197,13 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
             _LOGGER.warning("forecastDays is empty")
             return None
         
-        # Obtener la fecha actual (solo fecha, sin hora) en UTC
-        today = datetime.now(timezone.utc).date()
+        # Obtener la fecha actual en la zona horaria configurada en Home Assistant
+        hass_timezone = (
+            dt_util.get_time_zone(self.hass.config.time_zone)
+            if self.hass.config.time_zone
+            else dt_util.DEFAULT_TIME_ZONE
+        )
+        today = dt_util.now(hass_timezone).date()
         
         _LOGGER.info(f"Processing {len(forecast_data)} days of forecast (today: {today})")
         
@@ -286,20 +292,25 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
                     _LOGGER.warning(f"Day {idx}: No start time found, skipping")
                     continue
                 
-                # Extraer solo la fecha en formato ISO (YYYY-MM-DD)
-                if "T" in start_time:
-                    datetime_str = start_time.split("T")[0]
-                else:
-                    datetime_str = start_time
-                
-                # Filtrar: solo incluir fechas de hoy en adelante
+                # Convertir la fecha del pronóstico a la zona horaria local
                 try:
-                    forecast_date = datetime.fromisoformat(datetime_str).date()
+                    forecast_dt = dt_util.parse_datetime(start_time)
+                    if forecast_dt is None:
+                        raise ValueError("parse_datetime returned None")
+                    if forecast_dt.tzinfo is None:
+                        forecast_dt = forecast_dt.replace(tzinfo=timezone.utc)
+                    local_forecast_dt = forecast_dt.astimezone(hass_timezone)
+                    forecast_date = local_forecast_dt.date()
                     if forecast_date < today:
-                        _LOGGER.debug(f"Day {idx}: Skipping past date {datetime_str}")
+                        _LOGGER.debug(
+                            f"Day {idx}: Skipping past date {start_time} (local date {forecast_date})"
+                        )
                         continue
+                    datetime_str = forecast_date.isoformat()
                 except (ValueError, AttributeError) as err:
-                    _LOGGER.warning(f"Day {idx}: Invalid date format {datetime_str}: {err}")
+                    _LOGGER.warning(
+                        f"Day {idx}: Invalid date format {start_time}: {err}"
+                    )
                     continue
                 
                 # Crear entrada de forecast
