@@ -306,7 +306,10 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
                             f"Day {idx}: Skipping past date {start_time} (local date {forecast_date})"
                         )
                         continue
-                    datetime_str = forecast_date.isoformat()
+                    local_midday = local_forecast_dt.replace(
+                        hour=12, minute=0, second=0, microsecond=0
+                    )
+                    datetime_str = local_midday.isoformat()
                 except (ValueError, AttributeError) as err:
                     _LOGGER.warning(
                         f"Day {idx}: Invalid date format {start_time}: {err}"
