@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#4285F4" opacity="0.1"/>
+  
+  <!-- Location pin -->
+  <path d="M256 80c-52.935 0-96 43.065-96 96 0 52.935 96 176 96 176s96-123.065 96-176c0-52.935-43.065-96-96-96z" 
+        fill="#EA4335" stroke="#fff" stroke-width="8"/>
+  <circle cx="256" cy="176" r="32" fill="#fff"/>
+  
+  <!-- Sun -->
+  <circle cx="352" cy="140" r="28" fill="#FBBC04"/>
+  <path d="M352 100v10 M352 160v10 M322 140h-10 M382 140h10 M330 118l7 7 M367 155l7 7 M367 118l-7 7 M330 155l-7 7" 
+        stroke="#FBBC04" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Cloud -->
+  <path d="M180 360c-22.091 0-40-17.909-40-40 0-17.684 11.457-32.664 27.357-37.891 
+           -0.229-2.005-0.357-4.044-0.357-6.109 0-30.928 25.072-56 56-56 26.194 0 48.217 17.993 54.39 42.25 
+           4.474-2.387 9.57-3.75 14.987-3.75 17.673 0 32 14.327 32 32 0 2.485-0.293 4.903-0.835 7.231 
+           15.325 5.337 26.335 19.897 26.335 37.019 0 21.539-17.461 38.75-39 38.75h-130.877z" 
+        fill="#9AA0A6" opacity="0.9"/>
+  
+  <!-- Weather text -->
+  <text x="256" y="430" font-family="Arial, sans-serif" font-size="60" font-weight="bold" 
+        text-anchor="middle" fill="#202124">W</text>
+</svg>
+
