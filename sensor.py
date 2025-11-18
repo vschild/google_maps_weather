@@ -218,8 +218,9 @@ class APIUsageSensor(CoordinatorEntity, SensorEntity):
             CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL
         )
         # Calcular llamadas estimadas por mes
-        # (60 minutos * 24 horas * 30 días) / intervalo
-        return int((60 * 24 * 30) / update_interval)
+        # 3 llamadas por actualización (current + daily + hourly)
+        # 3 * (60 minutos * 24 horas * 30 días) / intervalo
+        return int(3 * (60 * 24 * 30) / update_interval)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -227,7 +228,8 @@ class APIUsageSensor(CoordinatorEntity, SensorEntity):
         update_interval = self._entry.data.get(
             CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL
         )
-        estimated_calls = int((60 * 24 * 30) / update_interval)
+        # 3 llamadas por actualización (current + daily + hourly)
+        estimated_calls = int(3 * (60 * 24 * 30) / update_interval)
         
         # Determinar estado según el límite
         if estimated_calls <= 1000:
@@ -241,6 +243,7 @@ class APIUsageSensor(CoordinatorEntity, SensorEntity):
             "update_interval_minutes": update_interval,
             "update_interval_display": f"{update_interval} minutos",
             "estimated_monthly_calls": estimated_calls,
+            "calls_per_update": 3,
             "free_tier_limit": 1000,
             "usage_percentage": round(percentage, 1),
             "status": status,

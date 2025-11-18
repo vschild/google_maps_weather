@@ -1,6 +1,7 @@
 """The Google Maps Weather integration."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import timedelta
 
@@ -9,7 +10,13 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL, DOMAIN
+from .const import (
+    CONF_UPDATE_INTERVAL,
+    CONF_HOURLY_FORECAST_HOURS,
+    DEFAULT_UPDATE_INTERVAL,
+    DEFAULT_HOURLY_FORECAST_HOURS,
+    DOMAIN,
+)
 from .api import GoogleMapsWeatherAPI
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,6 +30,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     latitude = entry.data["latitude"]
     longitude = entry.data["longitude"]
     update_interval = entry.data.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
+    hourly_forecast_hours = entry.data.get(CONF_HOURLY_FORECAST_HOURS, DEFAULT_HOURLY_FORECAST_HOURS)
     
     api = GoogleMapsWeatherAPI(api_key, latitude, longitude)
     
@@ -30,11 +38,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async def async_update_data():
         """Fetch data from API."""
         try:
-            current = await api.get_current_conditions()
-            forecast = await api.get_daily_forecast()
+            # Ejecutar las 3 llamadas en paralelo para optimizar tiempo de respuesta
+            current, forecast_daily, forecast_hourly = await asyncio.gather(
+                api.get_current_conditions(),
+                api.get_daily_forecast(),
+                api.get_hourly_forecast(hours=hourly_forecast_hours)
+            )
+            
+            _LOGGER.debug(
+                "Datos obtenidos: condiciones actuales, pronóstico diario y horario (%s horas)",
+                hourly_forecast_hours
+            )
+            
             return {
                 "current": current,
-                "forecast": forecast
+                "forecast": forecast_daily,
+                "hourly": forecast_hourly
             }
         except Exception as err:
             raise UpdateFailed(f"Error communicating with API: {err}")
@@ -60,11 +79,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Configurar las plataformas
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     
-    # Log del intervalo configurado
+    # Log del intervalo configurado (ahora con 3 llamadas por actualización)
+    monthly_calls = int(3 * (60 * 24 * 30) / update_interval)
     _LOGGER.info(
-        "Google Maps Weather configurado con intervalo de actualización: %s minutos (~%s llamadas/mes)",
+        "Google Maps Weather configurado: %s minutos de actualización, "
+        "%s horas de pronóstico horario (~%s llamadas/mes con 3 endpoints)",
         update_interval,
-        int((60 * 24 * 30) / update_interval)
+        hourly_forecast_hours,
+        monthly_calls
     )
     
     return True

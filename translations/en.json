@@ -3,16 +3,18 @@
     "step": {
       "user": {
         "title": "Configure Google Maps Weather",
-        "description": "Enter your Google Maps API key and location to get weather data.\n\n⚠️ IMPORTANT: Free tier allows 1000 calls/month. Select an appropriate update interval to stay within the limit.",
+        "description": "Enter your Google Maps API key and location to get weather data.\n\n⚠️ IMPORTANT: 3 calls per update (current + daily + hourly). Free tier allows 1000 calls/month.",
         "data": {
           "api_key": "Google Maps API Key",
           "latitude": "Latitude",
           "longitude": "Longitude",
           "units": "Units System",
-          "update_interval": "Update Interval"
+          "update_interval": "Update Interval",
+          "hourly_forecast_hours": "Hourly Forecast Hours"
         },
         "data_description": {
-          "update_interval": "Update frequency. Options:\n• 45 min (~960 calls/month) - Within limit\n• 60 min (~720 calls/month) - Recommended ✓\n• 90 min (~480 calls/month) - Conservative\n• 120 min (~360 calls/month) - Very conservative\n• 180 min (~240 calls/month) - Ultra conservative"
+          "update_interval": "Update frequency (3 calls/update). Options:\n• 90 min (~960 calls/month) - Within limit\n• 120 min (~720 calls/month) - Recommended ✓\n• 150 min (~576 calls/month) - Conservative\n• 180 min (~480 calls/month) - Very conservative\n• 240 min (~360 calls/month) - Ultra conservative",
+          "hourly_forecast_hours": "Number of hours for hourly forecast:\n• 24h (1 day)\n• 48h (2 days) - Recommended ✓\n• 72h (3 days)\n• 96h (4 days)\n• 120h (5 days)\n• 168h (7 days)\n• 240h (10 days) - Maximum"
         }
       }
     },

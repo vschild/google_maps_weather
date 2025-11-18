@@ -17,11 +17,14 @@ from .const import (
     CONF_API_KEY,
     CONF_UNITS,
     CONF_UPDATE_INTERVAL,
+    CONF_HOURLY_FORECAST_HOURS,
     DEFAULT_NAME,
     DEFAULT_UNITS,
     DEFAULT_UPDATE_INTERVAL,
+    DEFAULT_HOURLY_FORECAST_HOURS,
     DOMAIN,
     UPDATE_INTERVALS,
+    HOURLY_FORECAST_OPTIONS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -93,6 +96,9 @@ class GoogleMapsWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL): vol.In(
                     list(UPDATE_INTERVALS.keys())
                 ),
+                vol.Optional(CONF_HOURLY_FORECAST_HOURS, default=DEFAULT_HOURLY_FORECAST_HOURS): vol.In(
+                    list(HOURLY_FORECAST_OPTIONS.keys())
+                ),
             }
         )
 
@@ -103,6 +109,9 @@ class GoogleMapsWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             description_placeholders={
                 "update_intervals": "\n".join(
                     [f"• {interval} min: {desc}" for interval, desc in UPDATE_INTERVALS.items()]
+                ),
+                "hourly_forecast_options": "\n".join(
+                    [f"• {hours}h: {desc}" for hours, desc in HOURLY_FORECAST_OPTIONS.items()]
                 )
             },
         )

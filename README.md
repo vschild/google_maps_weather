@@ -9,12 +9,15 @@ A custom Home Assistant integration that provides real-time, hyperlocal weather 
 ## ✨ Features
 
 - 🌤️ **Current weather conditions** with automatic day/night detection
-- 📅 **10-day weather forecast**
+- 📅 **10-day daily forecast** with high/low temperatures
+- ⏰ **Hourly forecast** (24 to 240 hours, configurable)
 - 📊 **11 detailed sensors**: UV index, dew point, wind, precipitation, and more
 - 🎛️ **Configurable update interval** to control API usage
+- ⚙️ **Configurable hourly forecast range** (1 to 10 days)
 - 📈 **API usage monitoring** to stay within free tier limits
 - 🌍 **Metric and Imperial units** support
 - 🌐 **Multi-language**: Spanish and English
+- ⚡ **Parallel API calls** for optimal performance
 
 ## 📸 Screenshots
 
@@ -65,12 +68,13 @@ A custom Home Assistant integration that provides real-time, hyperlocal weather 
    - **Latitude**: Your location (auto-filled)
    - **Longitude**: Your location (auto-filled)
    - **Units**: METRIC or IMPERIAL
-   - **Update Interval**: 60 minutes (recommended)
+   - **Update Interval**: 120 minutes (recommended)
+   - **Hourly Forecast Hours**: 48 hours (recommended)
 
 ## 📊 Entities Created
 
 ### Weather Entity
-- `weather.google_maps_weather` - Main weather entity with forecast
+- `weather.google_maps_weather` - Main weather entity with daily and hourly forecasts
 
 ### Sensors (11 total)
 - `sensor.google_maps_weather_uv_index` - UV index
@@ -91,16 +95,37 @@ A custom Home Assistant integration that provides real-time, hyperlocal weather 
 - **1,000 calls per month** (during Preview period)
 - After free tier: $0.15 per 1,000 calls
 
-### Update Intervals
+### API Calls Per Update
+This integration makes **3 API calls per update**:
+1. Current conditions
+2. Daily forecast (10 days)
+3. Hourly forecast (configurable: 24-240 hours)
+
+### Recommended Update Intervals
 
 | Interval | Calls/Month | Status |
 |----------|-------------|--------|
-| 45 min | ~960 | ✓ Within limit |
-| **60 min** | **~720** | **✓ Recommended** |
-| 90 min | ~480 | ✓ Conservative |
-| 120 min | ~360 | ✓ Very conservative |
+| 90 min | ~960 | ✓ Within limit |
+| **120 min** | **~720** | **✓ Recommended** |
+| 150 min | ~576 | ✓ Conservative |
+| 180 min | ~480 | ✓ Very conservative |
+| 240 min | ~360 | ✓ Ultra conservative |
 
 **All intervals stay within the free tier!**
+
+### Hourly Forecast Options
+
+| Hours | Description | Status |
+|-------|-------------|--------|
+| 24h | 1 day | ✓ Minimal |
+| **48h** | **2 days** | **✓ Recommended** |
+| 72h | 3 days | ✓ Extended |
+| 96h | 4 days | ✓ Extended |
+| 120h | 5 days | ✓ Extended |
+| 168h | 7 days | ✓ Full week |
+| 240h | 10 days | ✓ Maximum |
+
+**Note**: All hourly forecast options use the same number of API calls per update.
 
 ### Monitor Your Usage
 
@@ -124,11 +149,20 @@ max: 1000
 
 ## 🎨 Example Lovelace Cards
 
-### Basic Weather Card
+### Weather Card with Daily Forecast
 ```yaml
 type: weather-forecast
 entity: weather.google_maps_weather
 show_forecast: true
+forecast_type: daily
+```
+
+### Weather Card with Hourly Forecast
+```yaml
+type: weather-forecast
+entity: weather.google_maps_weather
+show_forecast: true
+forecast_type: hourly
 ```
 
 ### Detailed Sensors Card
@@ -195,14 +229,21 @@ More examples in [configuration_example.yaml](configuration_example.yaml)
 
 ### No Forecast Showing
 1. Ensure `show_forecast: true` in your weather card
-2. Clear browser cache (Ctrl+Shift+R)
-3. Check logs for errors
-4. Enable debug logging:
+2. Set `forecast_type: daily` or `forecast_type: hourly` explicitly
+3. Clear browser cache (Ctrl+Shift+R)
+4. Check logs for errors
+5. Enable debug logging:
    ```yaml
    logger:
      logs:
        custom_components.google_maps_weather: debug
    ```
+
+### Hourly Forecast Not Available
+1. Ensure you're running Home Assistant 2024.1.0 or later
+2. Check that your weather card supports hourly forecasts
+3. Verify the integration is configured with hourly forecast hours
+4. Check logs for any API errors related to hourly data
 
 ### API Connection Error
 1. Verify API key is correct
@@ -211,9 +252,10 @@ More examples in [configuration_example.yaml](configuration_example.yaml)
 4. Check internet connectivity
 
 ### Sensors Show "Unknown"
-1. Wait for first update (up to 60 minutes)
+1. Wait for first update (up to 120 minutes with default settings)
 2. Force update: Developer Tools → Services → `homeassistant.update_entity`
 3. Check API hasn't exceeded limits
+4. Verify all 3 API endpoints are responding correctly
 
 ## 🔗 Links
 
@@ -247,7 +289,32 @@ If you find this integration useful, please consider:
 
 ---
 
+## 🆕 What's New in v1.2.0
+
+### Hourly Forecast Support
+- ⏰ **Hourly forecasts** now available alongside daily forecasts
+- ⚙️ **Configurable range**: Choose from 24 to 240 hours
+- 🎯 **Dual forecast modes**: Switch between daily and hourly views in Home Assistant
+
+### Enhanced Performance
+- ⚡ **Parallel API calls**: All 3 endpoints fetch simultaneously
+- 🚀 **No performance penalty**: Fast response times despite multiple calls
+- 📊 **Better data coverage**: Current + 10-day daily + configurable hourly
+
+### Improved Configuration
+- 🎛️ **New setting**: Hourly forecast hours selector
+- 📈 **Updated intervals**: Optimized for 3 API calls per update
+- 💡 **Smart defaults**: 120-minute intervals, 48-hour forecasts
+- 📱 **Better UI**: Enhanced configuration descriptions
+
+### API Usage Optimization
+- 💰 **Still free tier friendly**: Default settings = ~720 calls/month
+- 📊 **Transparent monitoring**: API usage sensor shows calls per update
+- ✅ **Stay within limits**: All recommended intervals keep you under 1000/month
+
+---
+
 **Note**: This integration is not officially affiliated with or endorsed by Google or Home Assistant.
 
-**Version**: 1.1.4  
+**Version**: 1.2.0  
 **Last Updated**: November 2025

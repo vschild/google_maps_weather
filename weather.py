@@ -16,7 +16,7 @@ from homeassistant.const import (
     UnitOfSpeed,
     UnitOfTemperature,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -45,7 +45,7 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
     _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_native_wind_speed_unit = UnitOfSpeed.KILOMETERS_PER_HOUR
     _attr_supported_features = (
-        WeatherEntityFeature.FORECAST_DAILY
+        WeatherEntityFeature.FORECAST_DAILY | WeatherEntityFeature.FORECAST_HOURLY
     )
 
     def __init__(self, coordinator, entry: ConfigEntry) -> None:
@@ -163,8 +163,14 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
     async def async_forecast_daily(self) -> list[Forecast] | None:
         """Return the daily forecast in native units."""
         # NO usar cache aquí - siempre generar fresco para los listeners
-        forecast = self._generate_forecast()
+        forecast = self._generate_forecast_daily()
         _LOGGER.debug(f"async_forecast_daily called, returning {len(forecast) if forecast else 0} days")
+        return forecast
+
+    async def async_forecast_hourly(self) -> list[Forecast] | None:
+        """Return the hourly forecast in native units."""
+        forecast = self._generate_forecast_hourly()
+        _LOGGER.debug(f"async_forecast_hourly called, returning {len(forecast) if forecast else 0} hours")
         return forecast
 
     @callback
@@ -177,8 +183,8 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
         # para obtener el forecast actualizado
         self.async_write_ha_state()
 
-    def _generate_forecast(self) -> list[Forecast] | None:
-        """Generate forecast data from coordinator data."""
+    def _generate_forecast_daily(self) -> list[Forecast] | None:
+        """Generate daily forecast data from coordinator data."""
         if not self.coordinator.data or "forecast" not in self.coordinator.data:
             _LOGGER.warning("No forecast data available in coordinator")
             return None
@@ -309,5 +315,83 @@ class GoogleMapsWeatherEntity(CoordinatorEntity, WeatherEntity):
             _LOGGER.info(f"Successfully generated forecast with {len(forecast_list)} days")
         else:
             _LOGGER.warning("No forecast entries were generated")
+            
+        return forecast_list if forecast_list else None
+
+    def _generate_forecast_hourly(self) -> list[Forecast] | None:
+        """Generate hourly forecast data from coordinator data."""
+        if not self.coordinator.data or "hourly" not in self.coordinator.data:
+            _LOGGER.warning("No hourly forecast data available in coordinator")
+            return None
+
+        forecast_list = []
+        hourly_data = self.coordinator.data["hourly"].get("forecastHours", [])
+        
+        if not hourly_data:
+            _LOGGER.warning("forecastHours is empty")
+            return None
+        
+        _LOGGER.info(f"Processing {len(hourly_data)} hours of forecast")
+        
+        for idx, hour in enumerate(hourly_data):
+            try:
+                # Obtener temperatura
+                temp_data = hour.get("temperature", {})
+                temperature = temp_data.get("degrees") if isinstance(temp_data, dict) else None
+                
+                if temperature is None:
+                    _LOGGER.warning(f"Hour {idx}: No temperature found, skipping")
+                    continue
+                
+                # Obtener condición climática
+                weather_type = hour.get("weatherCondition", {}).get("type", "CLEAR")
+                is_daytime = hour.get("isDaytime", True)
+                
+                # Mapear condición base
+                condition = CONDITION_MAP.get(weather_type, "sunny")
+                
+                # Si es despejado y es de noche, cambiar a clear-night
+                if condition == "sunny" and not is_daytime:
+                    condition = "clear-night"
+                
+                # Obtener precipitación
+                precip_data = hour.get("precipitation", {})
+                precipitation = precip_data.get("qpf", {}).get("quantity", 0) if isinstance(precip_data, dict) else 0
+                precip_prob = precip_data.get("probability", {}).get("percent", 0) if isinstance(precip_data, dict) else 0
+                
+                # Obtener fecha y hora - usar interval startTime
+                interval = hour.get("interval", {})
+                start_time = interval.get("startTime")
+                
+                if not start_time:
+                    _LOGGER.warning(f"Hour {idx}: No start time found, skipping")
+                    continue
+                
+                # Crear entrada de forecast
+                forecast_entry = Forecast(
+                    datetime=start_time,  # Formato ISO completo con hora
+                    condition=condition,
+                    native_temperature=temperature,
+                    native_precipitation=precipitation,
+                    precipitation_probability=precip_prob,
+                )
+                
+                forecast_list.append(forecast_entry)
+                
+                # Log solo para las primeras 3 horas
+                if idx < 3:
+                    _LOGGER.debug(
+                        f"Hour {idx}: {start_time} - {condition}, "
+                        f"Temp: {temperature}°C, Precip: {precip_prob}%"
+                    )
+                
+            except Exception as err:
+                _LOGGER.error(f"Error processing forecast hour {idx}: {err}", exc_info=True)
+                continue
+
+        if forecast_list:
+            _LOGGER.info(f"Successfully generated hourly forecast with {len(forecast_list)} hours")
+        else:
+            _LOGGER.warning("No hourly forecast entries were generated")
             
         return forecast_list if forecast_list else None
