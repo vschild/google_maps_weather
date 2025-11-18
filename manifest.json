@@ -1,9 +1,9 @@
 {
   "domain": "google_maps_weather",
   "name": "Google Maps Weather",
-  "codeowners": ["@yourusername"],
+  "codeowners": ["@vschild"],
   "config_flow": true,
-  "documentation": "https://github.com/yourusername/google_maps_weather",
+  "documentation": "https://github.com/vschild/google_maps_weather",
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "requirements": ["aiohttp>=3.8.0"],

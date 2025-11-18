@@ -1,72 +1,73 @@
-# 🔄 Changelog - Control de Límites de API
+# Changelog
 
-## Versión 1.2.0 - Hourly Forecast & Parallel API Calls
+All notable changes to this project will be documented in this file.
 
-### 🎉 Nuevas Características
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-1. **Pronóstico Horario**
-   - ⏰ Soporte completo para pronóstico por hora
-   - ⚙️ Configurable: 24 a 240 horas (1 a 10 días)
-   - 📊 Por defecto: 48 horas (2 días)
-   - 🎯 Vista dual: diaria y horaria en Home Assistant
-   - 🌙 Detección automática día/noche en pronósticos horarios
+---
 
-2. **Llamadas API en Paralelo**
-   - ⚡ 3 endpoints ejecutados simultáneamente con `asyncio.gather()`
-   - 🚀 Sin penalización de rendimiento
-   - 📡 Endpoints: condiciones actuales + pronóstico diario + pronóstico horario
-   - ⏱️ Tiempo de respuesta similar a 1 llamada secuencial
+## [1.2.0] - 2025-11-18
 
-3. **Nueva Configuración**
-   - 🎛️ Campo configurable: "Horas de pronóstico horario"
-   - 🔢 Opciones: 24, 48, 72, 96, 120, 168, 240 horas
-   - 💡 Valor recomendado: 48 horas (2 días)
-   - 📝 Descripciones mejoradas en la UI
+### 🎉 Added
 
-### 🔄 Cambios en API Usage
+#### Hourly Forecast Support
+- ⏰ Full hourly forecast support alongside daily forecasts
+- ⚙️ Configurable hourly range: 24 to 240 hours (1 to 10 days)
+- 📊 Default: 48 hours (2 days)
+- 🎯 Dual forecast modes: Switch between daily and hourly views in Home Assistant
+- 🌙 Automatic day/night detection in hourly forecasts
+- New UI configuration field: "Hourly Forecast Hours" with 7 options (24, 48, 72, 96, 120, 168, 240 hours)
 
-**IMPORTANTE**: Ahora se realizan **3 llamadas por actualización**
+#### Parallel API Calls
+- ⚡ 3 API endpoints now execute simultaneously using `asyncio.gather()`
+- 🚀 No performance penalty despite multiple calls
+- 📡 Endpoints: current conditions + daily forecast + hourly forecast
+- ⏱️ Response time similar to a single sequential call
 
-1. **Intervalos Actualizados**
-   - Recomendado: **120 minutos** (~720 llamadas/mes)
-   - Conservador: 150 minutos (~576 llamadas/mes)
-   - Muy conservador: 180 minutos (~480 llamadas/mes)
-   - Eliminados intervalos < 90 min (sobrepasan límite)
+### 🔄 Changed
 
-2. **Monitoreo Mejorado**
-   - Sensor de uso API actualizado para 3 llamadas/actualización
-   - Atributo nuevo: `calls_per_update: 3`
-   - Cálculo preciso de uso mensual
+#### API Usage Updates
+**IMPORTANT**: Now makes **3 API calls per update** (previously 2)
 
-### 📝 Archivos Modificados
+**Updated Intervals:**
+- Recommended: **120 minutes** (~720 calls/month) - stays within free tier
+- Conservative: 150 minutes (~576 calls/month)
+- Very conservative: 180 minutes (~480 calls/month)
+- Ultra conservative: 240 minutes (~360 calls/month)
+- Removed intervals < 90 min (would exceed free tier limit)
 
-- `const.py` - Nuevas constantes y opciones de configuración
-- `config_flow.py` - Campo de horas de pronóstico horario
-- `__init__.py` - Implementación de llamadas paralelas con asyncio
-- `weather.py` - Soporte completo de pronóstico horario
-- `sensor.py` - Actualización de cálculos de uso API
-- `strings.json` - Traducciones en español actualizadas
-- `translations/en.json` - Traducciones en inglés actualizadas
-- `manifest.json` - Versión 1.2.0
-- `README.md` - Documentación completa de nuevas características
+**Improved Monitoring:**
+- API usage sensor updated to account for 3 calls per update
+- New attribute: `calls_per_update: 3`
+- Accurate monthly usage calculation
 
-### 🔍 Cambios Técnicos
+### 🔧 Technical Changes
 
-**weather.py**
+**Modified Files:**
+- `const.py` - New constants and configuration options
+- `config_flow.py` - Added hourly forecast hours field
+- `__init__.py` - Implemented parallel API calls with asyncio
+- `weather.py` - Full hourly forecast support
+- `sensor.py` - Updated API usage calculations
+- `strings.json` - Updated Spanish translations
+- `translations/en.json` - Updated English translations
+- `manifest.json` - Version 1.2.0
+- `README.md` - Complete documentation of new features
+
+**weather.py - New Methods:**
 ```python
-# Nuevos métodos
 async def async_forecast_hourly() -> list[Forecast] | None
 def _generate_forecast_hourly() -> list[Forecast] | None
 
-# Features actualizados
+# Updated features
 _attr_supported_features = (
     WeatherEntityFeature.FORECAST_DAILY | WeatherEntityFeature.FORECAST_HOURLY
 )
 ```
 
-**__init__.py**
+**__init__.py - Parallel Calls:**
 ```python
-# Llamadas paralelas con asyncio
 current, forecast_daily, forecast_hourly = await asyncio.gather(
     api.get_current_conditions(),
     api.get_daily_forecast(),
@@ -74,91 +75,88 @@ current, forecast_daily, forecast_hourly = await asyncio.gather(
 )
 ```
 
-### 💰 Impacto en Costos
+### 💰 Cost Impact
 
-| Configuración | Antes | Ahora |
-|---------------|-------|-------|
-| Llamadas/actualización | 2 | 3 |
-| Intervalo recomendado | 60 min | 120 min |
-| Llamadas/mes (recomendado) | ~720 | ~720 |
+| Configuration | Before | After |
+|---------------|--------|-------|
+| Calls per update | 2 | 3 |
+| Recommended interval | 60 min | 120 min |
+| Monthly calls (recommended) | ~720 | ~720 |
 
-**Resultado**: Más datos, mismo consumo de API ✅
+**Result**: More data, same API consumption ✅
 
-### 🎨 Nuevas Capacidades UI
+### 🎨 New UI Capabilities
 
-**Tarjetas de Clima**
+**Weather Cards:**
 ```yaml
-# Vista diaria
+# Daily view
 type: weather-forecast
 entity: weather.google_maps_weather
 forecast_type: daily
 
-# Vista horaria (NUEVO)
+# Hourly view (NEW)
 type: weather-forecast
 entity: weather.google_maps_weather
 forecast_type: hourly
 ```
 
-### ⚠️ Notas de Migración
+### ⚠️ Migration Notes
 
-- **Instalaciones nuevas**: Todo configurado automáticamente
-- **Actualizaciones**: 
-  - El campo "hourly_forecast_hours" se agregará con valor por defecto (48h)
-  - El intervalo de actualización se mantendrá como estaba configurado
-  - Considerar ajustar el intervalo si estabas usando < 90 minutos
+- **New installations**: Everything configured automatically
+- **Upgrades**: 
+  - "hourly_forecast_hours" field will be added with default value (48h)
+  - Update interval will remain as configured
+  - Consider adjusting interval if using < 90 minutes
 
-### 🐛 Correcciones
+### 🐛 Fixed
 
-- Logs más eficientes para pronósticos horarios (solo primeras 3 horas)
-- Validación robusta de datos de pronóstico horario
-- Manejo de errores mejorado en `_generate_forecast_hourly()`
+- More efficient logs for hourly forecasts (only first 3 hours shown)
+- Robust validation of hourly forecast data
+- Improved error handling in `_generate_forecast_hourly()`
 
 ---
 
-## Versión 1.1.2 - Fix Crítico de Pronóstico y Condiciones
+## [1.1.2] - 2024-11
 
-### 🐛 Correcciones Críticas
+### 🐛 Fixed
 
-1. **Fix Detección Día/Noche**
-   - Ahora detecta correctamente si es de día o de noche
-   - Usa `clear-night` cuando está despejado de noche
-   - Usa `sunny` cuando está despejado de día
-   - Lee el campo `isDaytime` de la API de Google
+#### Critical Day/Night Detection Fix
+- Now correctly detects day or night conditions
+- Uses `clear-night` when clear at night
+- Uses `sunny` when clear during the day
+- Reads `isDaytime` field from Google API
 
-2. **Fix Pronóstico Definitivo**
-   - Eliminado el método `_async_forecast_daily()` con callback (no funciona en HA 2024.x)
-   - Implementado correctamente solo `async_forecast_daily()`
-   - Agregado sistema de cache para el pronóstico
-   - Cache se invalida automáticamente en cada actualización
-   - Logs mejorados para debug
+#### Definitive Forecast Fix
+- Removed `_async_forecast_daily()` method with callback (doesn't work in HA 2024.x)
+- Correctly implemented `async_forecast_daily()` only
+- Added cache system for forecasts
+- Cache automatically invalidates on each update
+- Improved debug logging
 
-3. **Mejoras en Logs**
-   - Logs más detallados del procesamiento del pronóstico
-   - Información de cada día generado
-   - Mejor manejo de errores con traceback completo
+#### Enhanced Logging
+- More detailed logs for forecast processing
+- Information for each generated day
+- Better error handling with full traceback
 
-### 📝 Archivos Modificados
-- `weather.py` - Fix completo de pronóstico y condiciones día/noche
-- `const.py` - Comentarios actualizados en CONDITION_MAP
-- `manifest.json` - Versión 1.1.2
+### 🔧 Technical Changes
 
-### 🔍 Cambios Técnicos
+**Modified Files:**
+- `weather.py` - Complete fix for forecast and day/night conditions
+- `const.py` - Updated comments in CONDITION_MAP
+- `manifest.json` - Version 1.1.2
 
-**Detección día/noche:**
+**Day/Night Detection:**
 ```python
-# Ahora lee isDaytime de la API
 is_daytime = current.get("isDaytime", True)
 if condition == "sunny" and not is_daytime:
     condition = "clear-night"
 ```
 
-**Pronóstico con cache:**
+**Forecast with Cache:**
 ```python
 async def async_forecast_daily(self) -> list[Forecast] | None:
-    # Usa cache si existe
     if self._forecast_cache is not None:
         return self._forecast_cache
-    # Genera y cachea
     forecast = self._generate_forecast()
     self._forecast_cache = forecast
     return forecast
@@ -166,67 +164,80 @@ async def async_forecast_daily(self) -> list[Forecast] | None:
 
 ---
 
-## Versión 1.1.1 - Bug Fixes
+## [1.1.1] - 2024-11
 
-### 🐛 Correcciones
+### 🐛 Fixed
 
-1. **Fix UV Index Sensor**
-   - Eliminado `device_class` incompatible del sensor UV Index
-   - Solucionado error: "is not a valid unit for device class 'irradiance'"
-   - El sensor ahora funciona correctamente sin advertencias
+#### UV Index Sensor Fix
+- Removed incompatible `device_class` from UV Index sensor
+- Solved error: "is not a valid unit for device class 'irradiance'"
+- Sensor now works correctly without warnings
 
-2. **Fix Pronóstico Diario (Intento 1)**
-   - Corregido método `async_forecast_daily()` para Home Assistant 2024.x
-   - Agregado método `_async_forecast_daily()` con callback
-   - Mejorado el parsing de fechas desde la API
-   - Agregados logs de debug para facilitar troubleshooting
+#### Daily Forecast Fix (Attempt 1)
+- Fixed `async_forecast_daily()` method for Home Assistant 2024.x
+- Added `_async_forecast_daily()` method with callback
+- Improved date parsing from API
+- Added debug logs for troubleshooting
 
-### 📝 Archivos Modificados
-- `sensor.py` - Fix UV Index
-- `weather.py` - Fix forecast + mejores logs
-- `manifest.json` - Versión 1.1.1
-
----
-
-## Versión 1.1.0 - Control de Límites Implementado
-
-### 🎯 Objetivo
-Agregar control completo sobre el uso de la API para no sobrepasar el límite gratuito de 1,000 llamadas por mes.
+### 🔧 Modified Files
+- `sensor.py` - UV Index fix
+- `weather.py` - Forecast fix + improved logging
+- `manifest.json` - Version 1.1.1
 
 ---
 
-## ✨ Nuevas Características
+## [1.1.0] - 2024-11
 
-### 1. ⚙️ Intervalo de Actualización Configurable
+### 🎯 Goal
+Add complete control over API usage to stay within the free tier limit of 1,000 calls per month.
 
-**Archivos modificados**: `config_flow.py`, `const.py`, `__init__.py`
+### ✨ Added
 
-Opciones disponibles:
-- 45 minutos (~960 llamadas/mes)
-- 60 minutos (~720 llamadas/mes) - Recomendado ⭐
-- 90 minutos (~480 llamadas/mes)
-- 120 minutos (~360 llamadas/mes)
-- 180 minutos (~240 llamadas/mes)
+#### Configurable Update Interval
 
-### 2. 📊 Sensor de Monitoreo
+**Modified Files**: `config_flow.py`, `const.py`, `__init__.py`
 
-**Archivo modificado**: `sensor.py`
+**Available Options:**
+- 45 minutes (~960 calls/month)
+- 60 minutes (~720 calls/month) - Recommended ⭐
+- 90 minutes (~480 calls/month)
+- 120 minutes (~360 calls/month)
+- 180 minutes (~240 calls/month)
 
-Nuevo sensor: `sensor.google_maps_weather_api_usage_estimate`
+#### API Usage Monitoring Sensor
 
-Muestra:
-- Llamadas mensuales estimadas
-- Porcentaje de uso del límite
-- Estado (dentro/fuera del límite)
-- Intervalo configurado
+**Modified File**: `sensor.py`
 
-### 3. 📖 Nueva Documentación
+**New Sensor**: `sensor.google_maps_weather_api_usage_estimate`
 
-**Archivo nuevo**: `CONTROL_LIMITES.md`
+**Shows:**
+- Estimated monthly API calls
+- Percentage of limit used
+- Status (within/exceeding limit)
+- Configured interval
 
-Guía completa sobre límites de API con ejemplos y alertas.
+#### Documentation
+
+**New File**: `CONTROL_LIMITES.md`
+
+Complete guide on API limits with examples and alerts.
 
 ---
 
-**Versión actual**: 1.1.2  
-**Fecha**: Noviembre 2024
+## [1.0.0] - Initial Release
+
+### ✨ Features
+
+- 🌤️ Current weather conditions with automatic day/night detection
+- 📅 10-day daily forecast with high/low temperatures
+- 📊 11 detailed sensors: UV index, dew point, wind, precipitation, and more
+- 🎛️ Configurable update interval to control API usage
+- 📈 API usage monitoring to stay within free tier limits
+- 🌍 Metric and Imperial units support
+- 🌐 Multi-language: Spanish and English
+- ⚡ Efficient API calls with robust error handling
+
+---
+
+**Current Version**: 1.2.0  
+**Last Updated**: November 18, 2025
