@@ -1,0 +1,26 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure Google Maps Weather",
+        "description": "Enter your Google Maps API key and location to get weather data.\n\n⚠️ IMPORTANT: Free tier allows 1000 calls/month. Select an appropriate update interval to stay within the limit.",
+        "data": {
+          "api_key": "Google Maps API Key",
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "units": "Units System",
+          "update_interval": "Update Interval"
+        },
+        "data_description": {
+          "update_interval": "Update frequency. Options:\n• 45 min (~960 calls/month) - Within limit\n• 60 min (~720 calls/month) - Recommended ✓\n• 90 min (~480 calls/month) - Conservative\n• 120 min (~360 calls/month) - Very conservative\n• 180 min (~240 calls/month) - Ultra conservative"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the API. Check your API key and internet connection."
+    },
+    "abort": {
+      "already_configured": "This location is already configured."
+    }
+  }
+}

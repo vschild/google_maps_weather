@@ -1,0 +1,253 @@
+# Ejemplo de Configuración en configuration.yaml
+# NOTA: Esta integración usa Config Flow (configuración mediante UI),
+# por lo que NO necesitas agregar nada en configuration.yaml
+
+# Sin embargo, aquí hay ejemplos de cómo usar las entidades en tu configuración:
+
+# ============================================
+# EJEMPLO 1: Automatización de Alerta de Lluvia
+# ============================================
+automation:
+  - alias: "Alerta de lluvia alta probabilidad"
+    description: "Notifica cuando hay alta probabilidad de lluvia"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.google_maps_weather_precipitation_probability
+        above: 70
+    condition:
+      - condition: time
+        after: "06:00:00"
+        before: "22:00:00"
+    action:
+      - service: notify.mobile_app_tu_dispositivo
+        data:
+          title: "🌧️ Alerta de Lluvia"
+          message: >
+            Hay un {{ states('sensor.google_maps_weather_precipitation_probability') }}% 
+            de probabilidad de lluvia. ¡No olvides tu paraguas!
+          data:
+            notification_icon: "mdi:weather-pouring"
+
+# ============================================
+# EJEMPLO 2: Automatización de Índice UV Alto
+# ============================================
+  - alias: "Alerta de UV alto"
+    description: "Notifica cuando el índice UV es alto"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.google_maps_weather_uv_index
+        above: 6
+    action:
+      - service: notify.mobile_app_tu_dispositivo
+        data:
+          title: "☀️ Índice UV Alto"
+          message: >
+            El índice UV es {{ states('sensor.google_maps_weather_uv_index') }}. 
+            Usa protector solar si vas a salir.
+
+# ============================================
+# EJEMPLO 3: Automatización de Tormentas
+# ============================================
+  - alias: "Alerta de tormenta eléctrica"
+    description: "Notifica cuando hay alta probabilidad de tormenta"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.google_maps_weather_thunderstorm_probability
+        above: 50
+    action:
+      - service: notify.mobile_app_tu_dispositivo
+        data:
+          title: "⚡ Alerta de Tormenta"
+          message: >
+            Hay un {{ states('sensor.google_maps_weather_thunderstorm_probability') }}% 
+            de probabilidad de tormenta eléctrica.
+      - service: light.turn_on
+        target:
+          entity_id: light.luz_exterior
+        data:
+          brightness: 255
+
+# ============================================
+# EJEMPLO 4: Script para Anuncio del Clima
+# ============================================
+script:
+  anunciar_clima:
+    alias: "Anunciar el clima del día"
+    sequence:
+      - service: tts.google_translate_say
+        data:
+          entity_id: media_player.tu_speaker
+          message: >
+            Buenos días. La temperatura actual es de 
+            {{ state_attr('weather.google_maps_weather', 'temperature') }} grados, 
+            con una sensación térmica de 
+            {{ state_attr('weather.google_maps_weather', 'apparent_temperature') }} grados. 
+            El clima está {{ states('weather.google_maps_weather') }}. 
+            La probabilidad de lluvia es del 
+            {{ states('sensor.google_maps_weather_precipitation_probability') }} por ciento.
+
+# ============================================
+# EJEMPLO 5: Sensor de Plantilla - Descripción del Clima
+# ============================================
+template:
+  - sensor:
+      - name: "Clima Descriptivo"
+        unique_id: clima_descriptivo
+        state: >
+          {% set temp = state_attr('weather.google_maps_weather', 'temperature') | float %}
+          {% set condition = states('weather.google_maps_weather') %}
+          {% if temp > 30 %}
+            Hace mucho calor
+          {% elif temp > 25 %}
+            Hace calor
+          {% elif temp > 20 %}
+            Temperatura agradable
+          {% elif temp > 15 %}
+            Fresco
+          {% elif temp > 10 %}
+            Frío
+          {% else %}
+            Hace mucho frío
+          {% endif %}
+          y el clima está {{ condition }}
+
+# ============================================
+# EJEMPLO 6: Sensor Binario - ¿Necesito Paraguas?
+# ============================================
+  - binary_sensor:
+      - name: "Necesito Paraguas"
+        unique_id: necesito_paraguas
+        state: >
+          {{ states('sensor.google_maps_weather_precipitation_probability') | int > 50 }}
+        icon: >
+          {% if is_state('binary_sensor.necesito_paraguas', 'on') %}
+            mdi:umbrella
+          {% else %}
+            mdi:umbrella-closed
+          {% endif %}
+
+# ============================================
+# EJEMPLO 7: Lovelace - Tarjetas del Clima
+# ============================================
+# Agrega esto en tu dashboard de Lovelace:
+
+# Tarjeta principal del clima:
+# type: weather-forecast
+# entity: weather.google_maps_weather
+# show_forecast: true
+
+# Tarjeta de sensores adicionales:
+# type: entities
+# title: Detalles del Clima
+# entities:
+#   - entity: sensor.google_maps_weather_uv_index
+#     name: Índice UV
+#   - entity: sensor.google_maps_weather_wind_gust
+#     name: Ráfagas de Viento
+#   - entity: sensor.google_maps_weather_dew_point
+#     name: Punto de Rocío
+#   - entity: sensor.google_maps_weather_precipitation_probability
+#     name: Prob. Precipitación
+#   - entity: sensor.google_maps_weather_thunderstorm_probability
+#     name: Prob. Tormenta
+#   - entity: sensor.google_maps_weather_cloud_cover
+#     name: Cobertura de Nubes
+
+# Tarjeta condicional - Alerta de UV:
+# type: conditional
+# conditions:
+#   - entity: sensor.google_maps_weather_uv_index
+#     state_not: unavailable
+#     state_not: unknown
+# card:
+#   type: markdown
+#   content: >
+#     {% set uv = states('sensor.google_maps_weather_uv_index') | int %}
+#     {% if uv >= 8 %}
+#       ⚠️ **Índice UV Muy Alto** ({{ uv }})
+#       
+#       Evita la exposición al sol. Usa protección máxima.
+#     {% elif uv >= 6 %}
+#       ☀️ **Índice UV Alto** ({{ uv }})
+#       
+#       Reduce la exposición al sol. Usa protector solar.
+#     {% elif uv >= 3 %}
+#       🌤️ **Índice UV Moderado** ({{ uv }})
+#       
+#       Usa protección si estarás afuera por mucho tiempo.
+#     {% else %}
+#       ✅ **Índice UV Bajo** ({{ uv }})
+#       
+#       Puedes estar al aire libre sin preocupación.
+#     {% endif %}
+
+# ============================================
+# EJEMPLO 8: Automatización de Clima en la Mañana
+# ============================================
+automation:
+  - alias: "Reporte del clima matutino"
+    description: "Envía un resumen del clima cada mañana"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    action:
+      - service: notify.mobile_app_tu_dispositivo
+        data:
+          title: "☀️ Buenos días"
+          message: >
+            Temperatura: {{ state_attr('weather.google_maps_weather', 'temperature') }}°C
+            (Sensación: {{ state_attr('weather.google_maps_weather', 'apparent_temperature') }}°C)
+            
+            Clima: {{ states('weather.google_maps_weather') }}
+            
+            Precipitación: {{ states('sensor.google_maps_weather_precipitation_probability') }}%
+            Viento: {{ state_attr('weather.google_maps_weather', 'wind_speed') }} km/h
+            UV: {{ states('sensor.google_maps_weather_uv_index') }}
+            
+            ¡Que tengas un excelente día!
+
+# ============================================
+# EJEMPLO 9: Monitoreo de Uso de API
+# ============================================
+  - alias: "Alerta de uso de API cercano al límite"
+    description: "Notifica si te acercas al límite gratuito"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.google_maps_weather_api_usage_estimate
+        above: 900
+    action:
+      - service: notify.mobile_app_tu_dispositivo
+        data:
+          title: "⚠️ Advertencia de API"
+          message: >
+            Tu uso estimado de API es de 
+            {{ states('sensor.google_maps_weather_api_usage_estimate') }} llamadas/mes.
+            Estás cerca del límite gratuito de 1000 llamadas.
+            Considera aumentar el intervalo de actualización.
+
+# Tarjeta de monitoreo de uso de API (para Lovelace):
+# type: entities
+# title: Uso de API Google Weather
+# entities:
+#   - entity: sensor.google_maps_weather_api_usage_estimate
+#     name: Llamadas Mensuales Estimadas
+#   - type: attribute
+#     entity: sensor.google_maps_weather_api_usage_estimate
+#     attribute: usage_percentage
+#     name: Porcentaje del Límite
+#   - type: attribute
+#     entity: sensor.google_maps_weather_api_usage_estimate
+#     attribute: status
+#     name: Estado
+#   - type: attribute
+#     entity: sensor.google_maps_weather_api_usage_estimate
+#     attribute: update_interval_display
+#     name: Intervalo de Actualización
+
+# ============================================
+# NOTAS IMPORTANTES
+# ============================================
+# 1. Reemplaza 'tu_dispositivo' con el nombre de tu dispositivo móvil
+# 2. Ajusta los umbrales de temperatura, UV, etc. según tus preferencias
+# 3. Personaliza los mensajes de notificación a tu gusto
+# 4. Puedes combinar múltiples condiciones para automatizaciones más complejas

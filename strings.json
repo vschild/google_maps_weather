@@ -1,0 +1,26 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar Google Maps Weather",
+        "description": "Ingresa tu clave API de Google Maps y la ubicación para obtener datos del clima.\n\n⚠️ IMPORTANTE: El tier gratuito permite 1000 llamadas/mes. Selecciona un intervalo de actualización apropiado para no sobrepasar el límite.",
+        "data": {
+          "api_key": "Clave API de Google Maps",
+          "latitude": "Latitud",
+          "longitude": "Longitud",
+          "units": "Sistema de unidades",
+          "update_interval": "Intervalo de actualización"
+        },
+        "data_description": {
+          "update_interval": "Frecuencia de actualización. Opciones:\n• 45 min (~960 llamadas/mes) - Dentro del límite\n• 60 min (~720 llamadas/mes) - Recomendado ✓\n• 90 min (~480 llamadas/mes) - Conservador\n• 120 min (~360 llamadas/mes) - Muy conservador\n• 180 min (~240 llamadas/mes) - Ultra conservador"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No se pudo conectar con la API. Verifica tu clave API y conexión a internet."
+    },
+    "abort": {
+      "already_configured": "Esta ubicación ya está configurada."
+    }
+  }
+}
