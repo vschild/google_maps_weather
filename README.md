@@ -250,4 +250,4 @@ If you find this integration useful, please consider:
 **Note**: This integration is not officially affiliated with or endorsed by Google or Home Assistant.
 
 **Version**: 1.1.4  
-**Last Updated**: November 2024
+**Last Updated**: November 2025
