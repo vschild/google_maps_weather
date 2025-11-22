@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Configurar Google Maps Weather",
-        "description": "Ingresa tu clave API de Google Maps y la ubicación para obtener datos del clima.\n\n⚠️ IMPORTANTE: Se realizan 3 llamadas por actualización (actual + diario + horario). El tier gratuito permite 1000 llamadas/mes.",
+        "description": "Ingresa tu clave API de Google Maps y la ubicación para obtener datos del clima.\n\n⚠️ IMPORTANTE: Se realizan 3+ llamadas por actualización (actual + diario + ceil(horario/24)). El tier gratuito permite 10000 llamadas/mes.",
         "data": {
           "api_key": "Clave API de Google Maps",
           "latitude": "Latitud",
@@ -13,8 +13,8 @@
           "hourly_forecast_hours": "Horas de pronóstico horario"
         },
         "data_description": {
-          "update_interval": "Frecuencia de actualización (3 llamadas/actualización). Opciones:\n• 90 min (~960 llamadas/mes) - Dentro del límite\n• 120 min (~720 llamadas/mes) - Recomendado ✓\n• 150 min (~576 llamadas/mes) - Conservador\n• 180 min (~480 llamadas/mes) - Muy conservador\n• 240 min (~360 llamadas/mes) - Ultra conservador",
-          "hourly_forecast_hours": "Cantidad de horas de pronóstico horario a solicitar:\n• 24h (1 día)\n• 48h (2 días) - Recomendado ✓\n• 72h (3 días)\n• 96h (4 días)\n• 120h (5 días)\n• 168h (7 días)\n• 240h (10 días) - Máximo"
+          "update_interval": "Frecuencia de actualización (3 llamadas/actualización). Opciones:\n• 15 min (~8640 llamadas/mes) - Dentro del límite\n• 30 min (~4320 llamadas/mes) - Dentro del límite - Recomendado ✓\n• 60 min (~2160 llamadas/mes) - Dentro del límite\n• 90 min (~1440 llamadas/mes) - Conservador\n• 120 min (~1080 llamadas/mes) - Conservador\n• 150 min (~864 llamadas/mes) - Conservador\n• 180 min (~720 llamadas/mes) - Muy conservador\n• 240 min (~540 llamadas/mes) - Ultra conservador",
+          "hourly_forecast_hours": "Cantidad de horas de pronóstico horario a solicitar:\n• 24h (1 día) - Recomendado ✓\n• 48h (2 días) - +1 API llamadas/actualización\n• 72h (3 días) - +2 API llamadas/actualización\n• 96h (4 días) - +3 API llamadas/actualización\n• 120h (5 días) - +4 API llamadas/actualización\n• 168h (7 días) - +6 API llamadas/actualización\n• 240h (10 días) - Máximo  - +9 API llamadas/actualización"
         }
       }
     },

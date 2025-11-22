@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -20,7 +21,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL, DOMAIN
+from .const import CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL, DOMAIN, CONF_HOURLY_FORECAST_HOURS, DEFAULT_HOURLY_FORECAST_HOURS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -217,10 +218,17 @@ class APIUsageSensor(CoordinatorEntity, SensorEntity):
         update_interval = self._entry.data.get(
             CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL
         )
+
+        hourly_forecast_hours = self._entry.data.get(
+            CONF_HOURLY_FORECAST_HOURS, DEFAULT_HOURLY_FORECAST_HOURS
+        )
         # Calcular llamadas estimadas por mes
-        # 3 llamadas por actualización (current + daily + hourly)
-        # 3 * (60 minutos * 24 horas * 30 días) / intervalo
-        return int(3 * (60 * 24 * 30) / update_interval)
+        # Add any additional calls due to pagination of hourly forecast
+        # 2 calls for current and daily, plus number of calls for hourly.
+        calls_per_update = 2 + math.ceil(hourly_forecast_hours/24)
+        
+        # calls_per_update * (60 minutos * 24 horas * 30 días) / intervalo
+        return int(calls_per_update * int((60 * 24 * 30) / update_interval))
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -228,25 +236,34 @@ class APIUsageSensor(CoordinatorEntity, SensorEntity):
         update_interval = self._entry.data.get(
             CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL
         )
+
+        hourly_forecast_hours = self._entry.data.get(
+            CONF_HOURLY_FORECAST_HOURS, DEFAULT_HOURLY_FORECAST_HOURS
+        )
+
+        # Add any additional calls due to pagination of hourly forecast
+        # 2 calls for current and daily, plus number of calls for hourly.
+        calls_per_update = 2 + math.ceil(hourly_forecast_hours/24)
+
         # 3 llamadas por actualización (current + daily + hourly)
-        estimated_calls = int(3 * (60 * 24 * 30) / update_interval)
+        estimated_calls = int(calls_per_update * int((60 * 24 * 30) / update_interval))
         
         # Determinar estado según el límite
-        if estimated_calls <= 1000:
-            status = "✓ Dentro del límite gratuito"
-            percentage = (estimated_calls / 1000) * 100
+        if estimated_calls <= 10000:
+            status = "✓"
+            percentage = (estimated_calls / 10000) * 100
         else:
-            status = "⚠️ Sobrepasa límite gratuito"
+            status = "⚠️"
             percentage = 100
             
         return {
             "update_interval_minutes": update_interval,
-            "update_interval_display": f"{update_interval} minutos",
+            "update_interval_display": f"{update_interval} minutes",
             "estimated_monthly_calls": estimated_calls,
-            "calls_per_update": 3,
-            "free_tier_limit": 1000,
+            "calls_per_update": calls_per_update,
+            "free_tier_limit": 10000,
             "usage_percentage": round(percentage, 1),
             "status": status,
             "calls_per_day": round(estimated_calls / 30, 1),
-            "within_free_tier": estimated_calls <= 1000,
+            "within_free_tier": estimated_calls <= 10000,
         }

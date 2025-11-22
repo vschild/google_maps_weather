@@ -6,6 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [1.2.4] - 2025-11-21
+
+### 🔧 Fixed
+
+- Fixed issue where daily forecast only retrieved 5 days worth of data instead of the expected 10
+- Fixed issue where hourly forecast only pulled the first 24 hours
+- Fixed issue with API call estimations
+- Fixed issue with incorrect free usage guidlines ( 10,000 API calls free - see [Environment APIs](https://developers.google.com/maps/billing-and-pricing/pricing#environment-pricing) )
+
+#### API Usage Updates
+**IMPORTANT**: Now can make **3 or more API calls per update** (previously 3)
+
+**Updated Intervals:**
+- Recommended: **60 minutes** (~2160 calls/month) - stays well within free tier (10,000)
+
+**Hourly Forecast Options**
+- Recommended: **24 hours** to keep the API usage at 3 calls by default
+- Anything above 24 hours will incure additional API calls/update
+
+**Improved Monitoring:**
+- API usage sensor updated to account for hourly forcast pagination (3+ calls per update)
+
+### 🔧 Technical Changes
+
+**Modified Files:**
+- `const.py` - New constants and configuration options
+- `__init__.py` - Fix Daily page size; Make paginated calls for additional hourly data.
+- `sensor.py` - Updated API usage calculations
+- `strings.json` - Updated Spanish translations
+- `translations/en.json` - Updated English translations
+- `manifest.json` - Version 1.2.4
+- `README.md` - Complete documentation of new features
+
+---
 
 ## [1.2.1] - 2025-11-18
 
@@ -249,4 +283,4 @@ Complete guide on API limits with examples and alerts.
 ---
 
 **Current Version**: 1.2.1  
-**Last Updated**: November 18, 2025
+**Last Updated**: November 21, 2025

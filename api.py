@@ -83,7 +83,8 @@ class GoogleMapsWeatherAPI:
             days: Number of days to forecast (1-10, default: 10)
         """
         params = {
-            "days": min(max(days, 1), 10)  # Limitar entre 1 y 10
+            "pageSize": min(max(days, 1), 10), # Defaults to 5, max 10, match to days requested.
+            "days": min(max(days, 1), 10),  # Limitar entre 1 y 10
         }
         return await self._make_request(DAILY_FORECAST_ENDPOINT, params)
 
@@ -96,7 +97,17 @@ class GoogleMapsWeatherAPI:
         params = {
             "hours": min(max(hours, 1), 240)  # Limitar entre 1 y 240
         }
-        return await self._make_request(HOURLY_FORECAST_ENDPOINT, params)
+        # Default and Max page size 24, we need to paginate to get all the data.
+        hourly_data = await self._make_request(HOURLY_FORECAST_ENDPOINT, params)
+        # Get the next page token (or null if no more pages)
+        next_page_token = hourly_data.get("nextPageToken")
+        while next_page_token:
+            # Make the API call and add the forecastHours into original API response
+            next_page_data = await self._make_request(HOURLY_FORECAST_ENDPOINT, params)
+            hourly_data["forecastHours"].extend(next_page_data.get("forecastHours", []))
+            # Get the next page token (or null if no more pages)
+            next_page_token = next_page_data.get("nextPageToken")
+        return hourly_data
 
     async def close(self) -> None:
         """Close the aiohttp session."""
