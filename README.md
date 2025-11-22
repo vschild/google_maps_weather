@@ -69,8 +69,8 @@ A custom Home Assistant integration that provides real-time, hyperlocal weather 
    - **Latitude**: Your location (auto-filled)
    - **Longitude**: Your location (auto-filled)
    - **Units**: METRIC or IMPERIAL
-   - **Update Interval**: 120 minutes (recommended)
-   - **Hourly Forecast Hours**: 48 hours (recommended)
+   - **Update Interval**: 60 minutes (recommended)
+   - **Hourly Forecast Hours**: 24 hours (recommended)
 
 ## 📊 Entities Created
 
@@ -93,40 +93,53 @@ A custom Home Assistant integration that provides real-time, hyperlocal weather 
 ## 💰 API Usage & Costs
 
 ### Free Tier
-- **1,000 calls per month** (during Preview period)
+- **10,000 calls per month**
 - After free tier: $0.15 per 1,000 calls
 
 ### API Calls Per Update
-This integration makes **3 API calls per update**:
+This integration makes **3+ API calls per update**:
 1. Current conditions
 2. Daily forecast (10 days)
-3. Hourly forecast (configurable: 24-240 hours)
+3. Hourly forecast (configurable: 24-240 hours; 1 call for every 24 hours)
 
 ### Recommended Update Intervals
 
 | Interval | Calls/Month | Status |
 |----------|-------------|--------|
-| 90 min | ~960 | ✓ Within limit |
-| **120 min** | **~720** | **✓ Recommended** |
-| 150 min | ~576 | ✓ Conservative |
-| 180 min | ~480 | ✓ Very conservative |
-| 240 min | ~360 | ✓ Ultra conservative |
+| 15 min | ~8640 | ✓ Within limit |
+| 30 min | ~4320 | ✓ Within limit |
+| **60 min** | **~2160** | **✓ Recommended** |
+| 90 min | ~1440 | ✓ Within limit |
+| 120 min | ~1080 | ✓ Conservative |
+| 150 min | ~864 | ✓ Conservative |
+| 180 min | ~720 | ✓ Very conservative |
+| 240 min | ~540 | ✓ Ultra conservative |
 
-**All intervals stay within the free tier!**
+**Note**: Calls/Month are estimated with a 24 hour forecast and for 30 days. ⚠️ Think twice before selecting 10 days (240h) or 7 days (168h) of hourly updates and a 15 or 30 min update interval. 
 
 ### Hourly Forecast Options
 
 | Hours | Description | Status |
 |-------|-------------|--------|
-| 24h | 1 day | ✓ Minimal |
-| **48h** | **2 days** | **✓ Recommended** |
-| 72h | 3 days | ✓ Extended |
-| 96h | 4 days | ✓ Extended |
-| 120h | 5 days | ✓ Extended |
-| 168h | 7 days | ✓ Full week |
-| 240h | 10 days | ✓ Maximum |
+| **24h** | **1 day** | **✓ Recommended** |
+| 48h | 2 days | ✓ Extended - +1 API Calls/update |
+| 72h | 3 days | ✓ Extended - +2 API Calls/update|
+| 96h | 4 days | ✓ Extended - +3 API Calls/update|
+| 120h | 5 days | ✓ Extended - +4 API Calls/update|
+| 168h | 7 days | ✓ Full week - +6 API Calls/update|
+| 240h | 10 days | ✓ Maximum - +9 API Calls/update|
 
-**Note**: All hourly forecast options use the same number of API calls per update.
+**Note**: Each additional 24 hour period results in an additional API call. ⚠️ Think twice before selecting 10 days (240h) or 7 days (168h) of hourly updates and a 15 or 30 min update interval.
+
+### Maximumn (31 days, Single location) API usage
+|   | 15 min | 30 min | 60 min | 90 min | 120 min | 150 min | 180 min | 240 min |
+|---|--------|--------|--------|--------|---------|---------|---------|---------|
+| **24h** | 🟢 8928 | 🟢 4464 | 🟢 2232 | 🟢 1488 | 🟢 1116 | 🟢 893 | 🟢 744 | 🟢 558 |
+| **48h** | 🔴 11904 | 🟢 5952 | 🟢 2976 | 🟢 1984 | 🟢 1488 | 🟢 1191 | 🟢 992 | 🟢 744 |
+| **96h** | 🔴 14880 | 🟢 7440 | 🟢 3720 | 🟢 2480 | 🟢 1860 | 🟢 1488 | 🟢 1240 | 🟢 930 |
+| **120h** | 🔴 17856 | 🟢 8928 | 🟢 4464 | 🟢 2976 | 🟢 2232 | 🟢 1786 | 🟢 1488 | 🟢 1116 |
+| **168h** | 🔴 23808 | 🔴 11904 | 🟢 5952 | 🟢 3968 | 🟢 2976 | 🟢 2381 | 🟢 1984 | 🟢 1488 |
+| **240h** | 🔴 32736 | 🔴 16368 | 🟢 8184 | 🟢 5456 | 🟢 4092 | 🟢 3274 | 🟢 2728 | 🟢 2046 |
 
 ### Monitor Your Usage
 
@@ -137,7 +150,7 @@ type: gauge
 entity: sensor.google_maps_weather_api_usage_estimate
 name: API Usage
 min: 0
-max: 1000
+max: 10000
 ```
 
 ## 📖 Documentation
@@ -305,17 +318,17 @@ If you find this integration useful, please consider:
 ### Improved Configuration
 - 🎛️ **New setting**: Hourly forecast hours selector
 - 📈 **Updated intervals**: Optimized for 3 API calls per update
-- 💡 **Smart defaults**: 120-minute intervals, 48-hour forecasts
+- 💡 **Smart defaults**: 30-minute intervals, 24-hour forecasts
 - 📱 **Better UI**: Enhanced configuration descriptions
 
 ### API Usage Optimization
-- 💰 **Still free tier friendly**: Default settings = ~720 calls/month
+- 💰 **Still free tier friendly**: Default settings = ~4320 calls/month
 - 📊 **Transparent monitoring**: API usage sensor shows calls per update
-- ✅ **Stay within limits**: All recommended intervals keep you under 1000/month
+- ✅ **Stay within limits**: All recommended intervals keep you under 10000/month
 
 ---
 
 **Note**: This integration is not officially affiliated with or endorsed by Google or Home Assistant.
 
-**Version**: 1.2.3  
+**Version**: 1.2.4  
 **Last Updated**: November 2025

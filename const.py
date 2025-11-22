@@ -19,35 +19,40 @@ CONF_HOURLY_FORECAST_HOURS = "hourly_forecast_hours"
 # Defaults
 DEFAULT_NAME = "Google Maps Weather"
 DEFAULT_UNITS = "METRIC"
-DEFAULT_UPDATE_INTERVAL = 120  # 120 minutos = ~720 llamadas/mes (3 llamadas por actualización)
-DEFAULT_HOURLY_FORECAST_HOURS = 48  # 48 horas por defecto
+DEFAULT_UPDATE_INTERVAL = 60  # 60 minutos = ~2160 llamadas/mes (3 llamadas por actualización)
+DEFAULT_HOURLY_FORECAST_HOURS = 24  # 24 horas por defecto
 
 # Update interval options (en minutos)
 # Cálculo de llamadas mensuales aproximadas = 3 * (60 * 24 * 30) / intervalo
-# (3 llamadas por actualización: current + daily + hourly)
+# (3+ llamadas por actualización: current + daily + ceil(hourly/24))
 UPDATE_INTERVALS = {
-    90: "1.5 horas (~960 llamadas/mes) - Dentro del límite",
-    120: "2 horas (~720 llamadas/mes) - Recomendado",
-    150: "2.5 horas (~576 llamadas/mes) - Conservador",
-    180: "3 horas (~480 llamadas/mes) - Muy conservador",
-    240: "4 horas (~360 llamadas/mes) - Ultra conservador",
+    15: "0.25 hours (~8640 calls/month) - Under free limit",
+    30: "0.5 hours (~4320 calls/month)",
+    60: "1 hours (~2160 calls/month)",
+    90: "1.5 hours (~1440 calls/month)",
+    120: "2 hours (~1080 calls/month)",
+    150: "2.5 hours (~864 calls/month)",
+    180: "3 hours (~720 calls/month)",
+    240: "4 hours (~540 calls/month)",
 }
 
 # Hourly forecast hours options
 HOURLY_FORECAST_OPTIONS = {
-    24: "24 horas (1 día)",
-    48: "48 horas (2 días) - Recomendado",
-    72: "72 horas (3 días)",
-    96: "96 horas (4 días)",
-    120: "120 horas (5 días)",
-    168: "168 horas (7 días)",
-    240: "240 horas (10 días) - Máximo",
+    24: "24 hours (1 day)",
+    48: "48 hours (2 days) - +1 API calls per update interval",
+    72: "72 hours (3 days) - +2 API calls per update interval",
+    96: "96 hours (4 days) - +3 API calls per update interval",
+    120: "120 hours (5 days) - +4 API calls per update interval",
+    168: "168 hours (7 days) - +6 API calls per update interval",
+    240: "240 hours (10 days) - Maximum - +9 API calls per update interval",
 }
 
 # Mapeo de códigos de condición climática de Google a Home Assistant
 # Home Assistant conditions: clear-night, cloudy, exceptional, fog, hail,
 # lightning, lightning-rainy, partlycloudy, pouring, rainy, snowy,
 # snowy-rainy, sunny, windy, windy-variant
+# Google list: https://developers.google.com/maps/documentation/weather/reference/rest/v1/WeatherCondition
+# Home Assistant List: https://www.home-assistant.io/integrations/weather/#condition-mapping
 CONDITION_MAP = {
     "CLEAR": "sunny",  # Se convertirá a clear-night si es de noche
     "MOSTLY_CLEAR": "sunny",
@@ -75,4 +80,31 @@ CONDITION_MAP = {
     "BLIZZARD": "snowy",
     "HAIL": "hail",
     "WINDY": "windy",
+    "BLOWING_SNOW":	"snowy",
+    "CHANCE_OF_SHOWERS": "rainy",
+    "CHANCE_OF_SNOW_SHOWERS": "snowy",
+    "HAIL_SHOWERS": "hail",
+    "HEAVY_RAIN_SHOWERS": "pouring",
+    "HEAVY_SNOW_SHOWERS": "snowy",
+    "HEAVY_SNOW_STORM": "snowy",
+    "HEAVY_THUNDERSTORM": "lightning",
+    "LIGHT_RAIN_SHOWERS": "rainy",
+    "LIGHT_SNOW_SHOWERS": "snowy",
+    "LIGHT_THUNDERSTORM_RAIN": "lightning-rainy",
+    "LIGHT_TO_MODERATE_RAIN": "rainy",
+    "LIGHT_TO_MODERATE_SNOW": "snowy",
+    "MODERATE_TO_HEAVY_RAIN": "pouring",
+    "MODERATE_TO_HEAVY_SNOW": "snowy",
+    "RAIN_AND_SNOW": "snowy-rainy",
+    "RAIN_PERIODICALLY_HEAVY": "pouring",
+    "RAIN_SHOWERS": "rainy",
+    "SCATTERED_SHOWERS": "rainy",
+    "SCATTERED_SNOW_SHOWERS": "snowy",
+    "SCATTERED_THUNDERSTORMS": "lightning",
+    "SNOWSTORM": "snowy",
+    "SNOW_PERIODICALLY_HEAVY": "snowy",
+    "SNOW_SHOWERS": "snowy",
+    "THUNDERSHOWER": "lightning-rainy",
+    "TYPE_UNSPECIFIED": "exceptional",
+    "WIND_AND_RAIN": "windy-variant",
 }
