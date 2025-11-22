@@ -13,7 +13,7 @@
           "hourly_forecast_hours": "Hourly Forecast Hours"
         },
         "data_description": {
-          "update_interval": "Update frequency (3 calls/update). Options:\n• 15 min (~8640 calls/month)\n• 30 min (~4320 calls/month) - Recommended ✓\n• 60 min (~2160 calls/month)\n• 90 min (~1440 calls/month)\n• 120 min (~1080 calls/month)\n• 150 min (~864 calls/month)\n• 180 min (~720 calls/month)\n• 240 min (~540 calls/month)",
+          "update_interval": "Update frequency (3 calls/update). Options:\n• 15 min (~8640 calls/month)\n• 30 min (~4320 calls/month)\n• 60 min (~2160 calls/month) - Recommended ✓\n• 90 min (~1440 calls/month)\n• 120 min (~1080 calls/month)\n• 150 min (~864 calls/month)\n• 180 min (~720 calls/month)\n• 240 min (~540 calls/month)",
           "hourly_forecast_hours": "Number of hours for hourly forecast:\n• 24h (1 day) - Recommended ✓\n• 48h (2 days) - +1 Additional API Call Per Update Interval\n• 72h (3 days) - +2 Additional API Calls Per Update Interval\n• 96h (4 days) - +3 Additional API Calls Per Update Interval\n• 120h (5 days) - +4 Additional API Calls Per Update Interval\n• 168h (7 days) - +6 Additional API Calls Per Update Interval\n• 240h (10 days) - Maximum - +9 Additional API Calls Per Update Interval"
         }
       }

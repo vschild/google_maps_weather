@@ -69,7 +69,7 @@ A custom Home Assistant integration that provides real-time, hyperlocal weather 
    - **Latitude**: Your location (auto-filled)
    - **Longitude**: Your location (auto-filled)
    - **Units**: METRIC or IMPERIAL
-   - **Update Interval**: 30 minutes (recommended)
+   - **Update Interval**: 60 minutes (recommended)
    - **Hourly Forecast Hours**: 24 hours (recommended)
 
 ## 📊 Entities Created
