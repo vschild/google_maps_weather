@@ -282,5 +282,5 @@ Complete guide on API limits with examples and alerts.
 
 ---
 
-**Current Version**: 1.2.1  
+**Current Version**: 1.2.4
 **Last Updated**: November 21, 2025
